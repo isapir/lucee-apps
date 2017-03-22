@@ -29,13 +29,13 @@ import java.util.Map;
  */
 public class LuceeApp {
 
-    final public static CFMLEngine engine = CFMLEngineFactory.getInstance();
+    public static final CFMLEngine engine = CFMLEngineFactory.getInstance();
 
-    final public static Collection.Key KEY_GET_SERVLET_CONFIG = LuceeApps.toKey("getServletConfig");
-    final public static Collection.Key KEY_GET_SERVLET_CONTEXT = LuceeApps.toKey("getServletContext");
-    final public static Collection.Key KEY_GET_CONFIG_WEB = LuceeApps.toKey("getConfigWeb");
-    final public static Collection.Key KEY_GET_APPLICATION_CONTEXT = LuceeApps.toKey("getApplicationContext");
-    final public static Collection.Key KEY_GET_APPLICATION_SCOPE = LuceeApps.toKey("getApplicationScope");
+    public static final Collection.Key KEY_GET_SERVLET_CONFIG = LuceeApps.toKey("getServletConfig");
+    public static final Collection.Key KEY_GET_SERVLET_CONTEXT = LuceeApps.toKey("getServletContext");
+    public static final Collection.Key KEY_GET_CONFIG_WEB = LuceeApps.toKey("getConfigWeb");
+    public static final Collection.Key KEY_GET_APPLICATION_CONTEXT = LuceeApps.toKey("getApplicationContext");
+    public static final Collection.Key KEY_GET_APPLICATION_SCOPE = LuceeApps.toKey("getApplicationScope");
 
     private ServletConfig servletConfig;
     private ServletContext servletContext;  // WebContext, actually
@@ -74,24 +74,6 @@ public class LuceeApp {
 
 
     /*
-    public static LuceeApp createFromComponent(Component component){
-
-        LuceeApp result = new LuceeApp();
-
-        PageContext pc = createPageContext(null, null);   // create a PageContext that's not attached to any application as applicationContext is not yet defined
-
-        // call the component's public methods to get references to Lucee objects
-        result.servletConfig = (ServletConfig)invoke(pc, component, KEY_GET_SERVLET_CONFIG);
-        result.servletContext = (ServletContext)invoke(pc, component, KEY_GET_SERVLET_CONTEXT);
-        result.configWeb = (ConfigWeb)invoke(pc, component, KEY_GET_CONFIG_WEB);
-        result.applicationContext = (ApplicationContext)invoke(pc, component, KEY_GET_APPLICATION_CONTEXT);
-        result.applicationScope = (Application)invoke(pc, component, KEY_GET_APPLICATION_SCOPE);
-
-        return result;
-    } //*/
-
-
-    /*
     public static Component loadComponent(String path, ApplicationContext applicationContext, String cfid) throws PageException {
 
         PageContext pc = createPageContext(applicationContext, cfid);
@@ -120,39 +102,6 @@ public class LuceeApp {
     }
     //*/
 
-    public static PageContext _createPageContext(ApplicationContext applicationContext, String cfid){
-
-        Cookie[] cookies = null;
-        if (cfid != null && !cfid.isEmpty())
-            cookies = new Cookie[]{ new Cookie("cfid", cfid), new Cookie("cftoken", "0") };
-
-        try {
-
-            PageContext pc = engine.createPageContext(
-                     null                   // webroot  (new File("E:/Workspace/git/LuceeDebug/webapps/default/"))
-                    ,null                   // HOST, e.g. "localhost.com"
-                    ,null                   // SCRIPT_NAME, e.g. "/websockets/test.cfm"
-                    ,null                   // QUERY_STRING
-                    ,cookies                // Cookies, cfid and cftoken are required for to retrieve Session
-                    ,Collections.EMPTY_MAP  // headers, can also be null
-                    ,Collections.EMPTY_MAP  // parameters
-                    ,Collections.EMPTY_MAP  // attributes
-                    ,System.out             // response stream where the output is written to
-                    ,60_000                 // timeout for the simulated request in milli seconds
-                    ,false                  // do not register the pc to the thread
-            );
-
-            if (applicationContext != null)
-                pc.setApplicationContext(applicationContext);
-
-            return pc;
-        }
-        catch (ServletException ex){
-            // TODO: log
-            ex.printStackTrace();
-            return null;
-        }
-    }
 
 
     public static PageContext createPageContext(LuceeApp luceeApp, String cfid){
