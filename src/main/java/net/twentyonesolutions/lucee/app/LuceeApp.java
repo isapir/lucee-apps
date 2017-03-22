@@ -123,7 +123,7 @@ public class LuceeApp {
                     ,Collections.EMPTY_MAP  // attributes
                     ,System.out             // response stream where the output is written to
                     ,60_000                 // timeout for the simulated request in milli seconds
-                    ,true                  // do not register the pc to the thread
+                    ,true                  // register the pc to the thread
             );
 
             if (luceeApp.applicationContext != null)
