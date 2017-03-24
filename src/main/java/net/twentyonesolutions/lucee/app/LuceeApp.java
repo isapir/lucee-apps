@@ -3,7 +3,6 @@ package net.twentyonesolutions.lucee.app;
 import lucee.commons.io.log.Log;
 import lucee.loader.engine.CFMLEngine;
 import lucee.loader.engine.CFMLEngineFactory;
-import lucee.runtime.Component;
 import lucee.runtime.PageContext;
 import lucee.runtime.config.ConfigWeb;
 import lucee.runtime.exp.PageException;
@@ -211,13 +210,13 @@ public class LuceeApp {
     }
 
 
-    public Session getSessionScope(String id){
+    public Session getSessionScope(String cfid){
 
         if (this.applicationContext == null)
             return null;
 
         Session result = null;
-        PageContext pc = createPageContext(this, id);
+        PageContext pc = createPageContext(this, cfid);
 
         if (pc != null){
 
@@ -236,7 +235,30 @@ public class LuceeApp {
     }
 
 
+//    public Session getSessionScopeByReflection(String id){
+//
+//        if (this.applicationContext == null)
+//            return null;
+//
+//        Session result = null;
+//        PageContext pc = createPageContext(this, id);
+//
+//        if (pc != null){
+//
+//            try {
+//                result = Reflection.getSessionScope(pc, id);
+//            }
+//            finally {
+//                this.releasePageContext(pc);
+//            }
+//        }
+//
+//        return result;
+//    }
+
+
     public void releasePageContext(PageContext pc){
+
         engine.releasePageContext(pc, true);
     }
 
