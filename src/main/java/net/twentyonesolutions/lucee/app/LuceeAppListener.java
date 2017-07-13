@@ -8,7 +8,7 @@ import lucee.runtime.type.Objects;
 import lucee.runtime.type.Struct;
 
 /**
- * Created by Admin on 10/5/2016.
+ * Created by Igal on 10/5/2016.
  */
 public class LuceeAppListener {
 

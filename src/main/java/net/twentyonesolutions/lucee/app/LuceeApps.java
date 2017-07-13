@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by Admin on 9/30/2016.
+ * Created by Igal on 9/30/2016.
  */
 public class LuceeApps {
 

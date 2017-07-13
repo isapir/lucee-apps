@@ -3,7 +3,7 @@ package net.twentyonesolutions.observe;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by Admin on 3/6/2017.
+ * Created by Igal on 3/6/2017.
  */
 public class Observable {
 

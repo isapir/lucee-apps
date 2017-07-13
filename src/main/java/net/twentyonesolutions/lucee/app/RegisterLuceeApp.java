@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by Admin on 12/5/2016.
+ * Created by Igal on 12/5/2016.
  */
 public class RegisterLuceeApp extends BIF {
 

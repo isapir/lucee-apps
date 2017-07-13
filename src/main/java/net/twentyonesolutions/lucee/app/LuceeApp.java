@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Admin on 9/30/2016.
+ * Created by Igal on 9/30/2016.
  */
 public class LuceeApp {
 
@@ -120,30 +120,30 @@ public class LuceeApp {
 	/*
 	 * public static Component loadComponent(String path, ApplicationContext applicationContext, String cfid) throws
 	 * PageException {
-	 * 
+	 *
 	 * PageContext pc = createPageContext(applicationContext, cfid); Component result = pc.loadComponent(path); return
 	 * result; }
-	 * 
-	 * 
+	 *
+	 *
 	 * public Component loadComponent(String path, String cfid) {
-	 * 
+	 *
 	 * try {
-	 * 
+	 *
 	 * return loadComponent(path, this.applicationContext, cfid); } catch (PageException ex){ // TODO: log
 	 * ex.printStackTrace(); return null; } }
-	 * 
-	 * 
+	 *
+	 *
 	 * public Component loadComponent(String path) {
-	 * 
+	 *
 	 * return loadComponent(path, null); }
-	 * 
-	 * 
+	 *
+	 *
 	 * public static Object invoke(PageContext pc, Component component, Collection.Key methodName, Object... args){
-	 * 
+	 *
 	 * if (!LuceeApps.hasMethod(component, methodName)) return null;
-	 * 
+	 *
 	 * try {
-	 * 
+	 *
 	 * Object result = component.call(pc, methodName, args); return result; } catch (Exception e){ // TODO: log
 	 * e.printStackTrace(); return e; } } //
 	 */
