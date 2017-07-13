@@ -7,38 +7,38 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Observable {
 
-    Object observedObject = null;
-    ConcurrentHashMap<Observer, Boolean> observers = new ConcurrentHashMap<>();
+	Object observedObject = null;
+	ConcurrentHashMap<Observer, Boolean> observers = new ConcurrentHashMap<>();
 
-    public Observable(Object observedObject){
+	public Observable(Object observedObject) {
 
-        if (observedObject != null)
-            this.observedObject = observedObject;
-        else
-            this.observedObject = this;
-    }
+		if (observedObject != null)
+			this.observedObject = observedObject;
+		else
+			this.observedObject = this;
+	}
 
-    public void addObserver(Observer observer){
+	public void addObserver(Observer observer) {
 
-        observers.put(observer, true);
-    }
+		observers.put(observer, true);
+	}
 
-    public void removeObserver(Observer observer){
+	public void removeObserver(Observer observer) {
 
-        observers.remove(observer);
-    }
+		observers.remove(observer);
+	}
 
-    public void removeAll(){
+	public void removeAll() {
 
-        observers.clear();
-    }
+		observers.clear();
+	}
 
-    public void notify(Object... args){
+	public void notify(Object... args) {
 
-        for (Observer observer : observers.keySet()){
+		for (Observer observer : observers.keySet()) {
 
-            observer.notify(observedObject, args);
-        }
-    }
+			observer.notify(observedObject, args);
+		}
+	}
 
 }

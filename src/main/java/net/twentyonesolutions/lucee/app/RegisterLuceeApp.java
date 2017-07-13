@@ -15,51 +15,49 @@ import java.util.Map;
  */
 public class RegisterLuceeApp extends BIF {
 
+	public static Object call(PageContext pc) {
 
-    public static Object call(PageContext pc){
+		LuceeApp app = LuceeApp.createFromPageContext(pc);
+		LuceeApps.registerApp(app);
 
-        LuceeApp app = LuceeApp.createFromPageContext(pc);
-        LuceeApps.registerApp(app);
+		return app;
+	}
 
-        return app;
-    }
+	public static Object call(PageContext pc, Struct listeners) {
 
+		LuceeApp app = (LuceeApp) call(pc);
 
-    public static Object call(PageContext pc, Struct listeners){
+		Iterator<Map.Entry<Collection.Key, Object>> it = listeners.entryIterator();
+		while (it.hasNext()) {
 
-        LuceeApp app = (LuceeApp) call(pc);
+			Map.Entry<Collection.Key, Object> entry = it.next();
+			Collection.Key key = entry.getKey();
+			Object value = entry.getValue();
 
-        Iterator<Map.Entry<Collection.Key, Object>> it = listeners.entryIterator();
-        while (it.hasNext()){
+			if (LuceeApps.getDecisionUtil().isComponent(value)) {
+				LuceeApps.registerListener(app, (Component) value, key.getString());
+			}
+			else if (value instanceof String) {
+				// TODO: currently can't load component from path cause PageContext's PageSource is null
+				throw new RuntimeException(
+						"Currently can't load component from path cause PageContext's PageSource is null. Pass a Component rather than a path to one.");
+				// LuceeApps.registerListener(app, (String)value, key.getString());
+			}
 
-            Map.Entry<Collection.Key, Object> entry = it.next();
-            Collection.Key key = entry.getKey();
-            Object value = entry.getValue();
+			// TODO: log
+			System.out.printf("%s >>> %s %s\r\n", RegisterLuceeApp.class.getName(), key, value);
+		}
 
-            if (LuceeApps.getDecisionUtil().isComponent(value)){
-                LuceeApps.registerListener(app, (Component)value, key.getString());
-            }
-            else if (value instanceof String){
-                // TODO: currently can't load component from path cause PageContext's PageSource is null
-                throw new RuntimeException("Currently can't load component from path cause PageContext's PageSource is null. Pass a Component rather than a path to one.");
-//                LuceeApps.registerListener(app, (String)value, key.getString());
-            }
+		return app;
+	}
 
-            // TODO: log
-            System.out.printf("%s >>> %s %s\r\n", RegisterLuceeApp.class.getName(), key, value);
-        }
+	@Override
+	public Object invoke(PageContext pc, Object[] args) throws PageException {
 
-        return app;
-    }
+		if (args.length == 0)
+			return call(pc);
 
-
-    @Override
-    public Object invoke(PageContext pc, Object[] args) throws PageException {
-
-        if (args.length == 0)
-            return call(pc);
-
-        return call(pc, LuceeApps.getCastUtil().toStruct(args[0]));
-    }
+		return call(pc, LuceeApps.getCastUtil().toStruct(args[0]));
+	}
 
 }

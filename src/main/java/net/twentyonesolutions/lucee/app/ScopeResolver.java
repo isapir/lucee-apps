@@ -15,89 +15,88 @@ import javax.servlet.ServletException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-
 public class ScopeResolver {
 
-    final public static CFMLEngine engine;
+	final public static CFMLEngine engine;
 
-    static {
+	static {
 
-        engine = CFMLEngineFactory.getInstance();
-    }
+		engine = CFMLEngineFactory.getInstance();
+	}
 
+	public static CFMLFactory getCfmlFactory(ServletConfig servletConfig) {
 
-    public static CFMLFactory getCfmlFactory(ServletConfig servletConfig){
+		CFMLFactory result = null;
 
-        CFMLFactory result = null;
+		try {
+			result = engine.getCFMLFactory(servletConfig, null);
+		}
+		catch (NullPointerException | ServletException ex) {
+			// we could get NPE if CFMLFactory is not initialized for this ServletContext cause we're passing null for
+			// HttpServletRequest
+		}
 
-        try {
-            result = engine.getCFMLFactory(servletConfig, null);
-        }
-        catch (NullPointerException | ServletException ex){
-            // we could get NPE if CFMLFactory is not initialized for this ServletContext cause we're passing null for HttpServletRequest
-        }
+		return result;
+	}
 
-        return result;
-    }
+	public static Application getApplicationScope(ServletConfig servletConfig, String appName) {
 
+		CFMLFactory cfmlFactory = getCfmlFactory(servletConfig);
+		if (cfmlFactory == null)
+			return null;
 
-    public static Application getApplicationScope(ServletConfig servletConfig, String appName){
+		ClassLoader classLoader = cfmlFactory.getClass().getClassLoader();
 
-        CFMLFactory cfmlFactory = getCfmlFactory(servletConfig);
-        if (cfmlFactory == null)
-            return null;
+		try {
 
-        ClassLoader classLoader = cfmlFactory.getClass().getClassLoader();
+			Class c_CfmlFactoryImpl = classLoader.loadClass("lucee.runtime.CFMLFactoryImpl");
+			Method m_GetScopeContext = c_CfmlFactoryImpl.getDeclaredMethod("getScopeContext");
 
-        try {
+			Object scopeContext = m_GetScopeContext.invoke(cfmlFactory);
 
-            Class c_CfmlFactoryImpl = classLoader.loadClass("lucee.runtime.CFMLFactoryImpl");
-            Method m_GetScopeContext = c_CfmlFactoryImpl.getDeclaredMethod("getScopeContext");
+			Class c_ScopeContext = classLoader.loadClass("lucee.runtime.type.scope.ScopeContext");
+			Method m_getAllApplicationScopes = c_ScopeContext.getDeclaredMethod("getAllApplicationScopes");
 
-            Object scopeContext = m_GetScopeContext.invoke(cfmlFactory);
+			Struct allApplications = (Struct) m_getAllApplicationScopes.invoke(scopeContext);
 
-            Class c_ScopeContext = classLoader.loadClass("lucee.runtime.type.scope.ScopeContext");
-            Method m_getAllApplicationScopes = c_ScopeContext.getDeclaredMethod("getAllApplicationScopes");
+			Application result = (Application) allApplications.get(LuceeApps.toKey(appName), null);
+			return result;
+		}
+		catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-            Struct allApplications = (Struct)m_getAllApplicationScopes.invoke(scopeContext);
+	public static Session getSessionScope(ServletConfig servletConfig, String appName, String cfid) {
 
-            Application result = (Application)allApplications.get(LuceeApps.toKey(appName), null);
-            return result;
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+		CFMLFactory cfmlFactory = getCfmlFactory(servletConfig);
+		if (cfmlFactory == null)
+			return null;
 
+		ClassLoader classLoader = cfmlFactory.getClass().getClassLoader();
 
-    public static Session getSessionScope(ServletConfig servletConfig, String appName, String cfid){
+		try {
 
-        CFMLFactory cfmlFactory = getCfmlFactory(servletConfig);
-        if (cfmlFactory == null)
-            return null;
+			Class c_CfmlFactoryImpl = classLoader.loadClass("lucee.runtime.CFMLFactoryImpl");
+			Method m_GetScopeContext = c_CfmlFactoryImpl.getDeclaredMethod("getScopeContext");
 
-        ClassLoader classLoader = cfmlFactory.getClass().getClassLoader();
+			Object scopeContext = m_GetScopeContext.invoke(cfmlFactory);
 
-        try {
+			Class c_ScopeContext = classLoader.loadClass("lucee.runtime.type.scope.ScopeContext");
+			Method m_getAllSessionScopes = c_ScopeContext.getDeclaredMethod("getAllSessionScopes", String.class);
 
-            Class c_CfmlFactoryImpl = classLoader.loadClass("lucee.runtime.CFMLFactoryImpl");
-            Method m_GetScopeContext = c_CfmlFactoryImpl.getDeclaredMethod("getScopeContext");
+			Struct allSessions = (Struct) m_getAllSessionScopes.invoke(scopeContext, appName);
 
-            Object scopeContext = m_GetScopeContext.invoke(cfmlFactory);
+			String sessionId = appName + "_" + cfid + "_0";
 
-            Class c_ScopeContext = classLoader.loadClass("lucee.runtime.type.scope.ScopeContext");
-            Method m_getAllSessionScopes = c_ScopeContext.getDeclaredMethod("getAllSessionScopes", String.class);
-
-            Struct allSessions = (Struct)m_getAllSessionScopes.invoke(scopeContext, appName);
-
-            String sessionId = appName + "_" + cfid + "_0";
-
-            Session result = (Session)allSessions.get(LuceeApps.toKey(sessionId), null);
-            return result;
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+			Session result = (Session) allSessions.get(LuceeApps.toKey(sessionId), null);
+			return result;
+		}
+		catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 }

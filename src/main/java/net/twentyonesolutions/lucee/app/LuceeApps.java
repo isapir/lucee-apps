@@ -22,181 +22,166 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LuceeApps {
 
-    final static Map<String, LuceeApp> luceeApps;               // <appName, LuceeApp>
-    final static Map<String, LuceeAppListener> appListeners;    // <key, LuceeAppListener>
-    final public static CFMLEngine engine;
-//    final public static Observable observable;
+	final static Map<String, LuceeApp> luceeApps; // <appName, LuceeApp>
+	final static Map<String, LuceeAppListener> appListeners; // <key, LuceeAppListener>
+	final public static CFMLEngine engine;
+	// final public static Observable observable;
 
-    static {
+	static {
 
-        engine = CFMLEngineFactory.getInstance();
-        luceeApps = new ConcurrentHashMap();
-        appListeners = new ConcurrentHashMap();
-//        observable = new Observable(LuceeApps.class);
-    }
+		engine = CFMLEngineFactory.getInstance();
+		luceeApps = new ConcurrentHashMap();
+		appListeners = new ConcurrentHashMap();
+		// observable = new Observable(LuceeApps.class);
+	}
 
+	public static LuceeApp registerApp(LuceeApp app, String key) {
 
-    public static LuceeApp registerApp(LuceeApp app, String key){
+		LuceeApp previousApp = luceeApps.put(key, app);
 
-        LuceeApp previousApp = luceeApps.put(key, app);
+		// observable.notify("LuceeAppUpdated", key, app, previousApp);
 
-//        observable.notify("LuceeAppUpdated", key, app, previousApp);
+		return app;
+	}
 
-        return app;
-    }
+	public static LuceeApp registerApp(LuceeApp app) {
 
+		return registerApp(app, app.getKey());
+	}
 
-    public static LuceeApp registerApp(LuceeApp app){
+	public static LuceeApp getAppByName(String name) {
 
-        return registerApp(app, app.getKey());
-    }
+		LuceeApp result = luceeApps.get(name);
+		return result;
+	}
 
+	public static LuceeAppListener getAppListener(String key) {
 
-    public static LuceeApp getAppByName(String name){
+		return appListeners.get(key);
+	}
 
-        LuceeApp result = luceeApps.get(name);
-        return result;
-    }
+	public static LuceeAppListener registerListener(LuceeApp app, Component component, String key) {
 
+		LuceeAppListener listener = new LuceeAppListener(component, app);
+		appListeners.put(key, listener);
 
-    public static LuceeAppListener getAppListener(String key){
+		return listener;
+	}
 
-        return appListeners.get(key);
-    }
+	public static LuceeAppListener registerListener(LuceeApp app, String componentPath, String key) {
 
+		LuceeAppListener listener = new LuceeAppListener(componentPath, app);
+		appListeners.put(key, listener);
 
-    public static LuceeAppListener registerListener(LuceeApp app, Component component, String key){
+		return listener;
+	}
 
-        LuceeAppListener listener = new LuceeAppListener(component, app);
-        appListeners.put(key, listener);
+	public static LuceeApp registerAppFromPageContext(PageContext pc) {
 
-        return listener;
-    }
+		LuceeApp app = LuceeApp.createFromPageContext(pc);
+		return registerApp(app);
+	}
 
+	// <editor-fold desc="Util Methods">
 
-    public static LuceeAppListener registerListener(LuceeApp app, String componentPath, String key){
+	public static Collection.Key toKey(String key) {
 
-        LuceeAppListener listener = new LuceeAppListener(componentPath, app);
-        appListeners.put(key, listener);
+		return getCastUtil().toKey(key);
+	}
 
-        return listener;
-    }
+	public static PageException toPageException(Throwable t) {
 
+		return getCastUtil().toPageException(t);
+	}
 
-    public static LuceeApp registerAppFromPageContext(PageContext pc){
+	public static Cast getCastUtil() {
 
-        LuceeApp app = LuceeApp.createFromPageContext(pc);
-        return registerApp(app);
-    }
+		return engine.getCastUtil();
+	}
 
+	public static Creation getCreationUtil() {
 
-    //<editor-fold desc="Util Methods">
+		return engine.getCreationUtil();
+	}
 
-    public static Collection.Key toKey(String key){
+	public static Decision getDecisionUtil() {
 
-        return getCastUtil().toKey(key);
-    }
+		return engine.getDecisionUtil();
+	}
 
+	public static Operation getOperationUtil() {
 
-    public static PageException toPageException(Throwable t){
+		return engine.getOperatonUtil();
+	}
 
-        return getCastUtil().toPageException(t);
-    }
+	/**
+	 * returns true if the object is a cfml boolean and is false
+	 *
+	 * @param obj
+	 * @return
+	 */
+	public static boolean isBooleanFalse(Object obj) {
 
-
-    public static Cast getCastUtil(){
-
-        return engine.getCastUtil();
-    }
-
-
-    public static Creation getCreationUtil(){
-
-        return engine.getCreationUtil();
-    }
-
-
-    public static Decision getDecisionUtil(){
-
-        return engine.getDecisionUtil();
-    }
-
-
-    public static Operation getOperationUtil(){
-
-        return engine.getOperatonUtil();
-    }
-
-
-    /**
-     * returns true if the object is a cfml boolean and is false
-     *
-     * @param obj
-     * @return
-     */
-    public static boolean isBooleanFalse(Object obj){
-
-        if (getDecisionUtil().isBoolean(obj)){
-            try {
-                boolean result = getCastUtil().toBoolean(obj);
-                return (result == false);
-            }
-            catch (Exception ex){}
-        }
-
-        return false;
-    }
-
-
-    /**
-     * returns true if the object is a cfml boolean and is true
-     *
-     * @param obj
-     * @return
-     */
-    public static boolean isBooleanTrue(Object obj){
-
-        if (getDecisionUtil().isBoolean(obj)){
-            try {
-                boolean result = getCastUtil().toBoolean(obj);
-                return (result == true);
-            }
-            catch (Exception ex){}
-        }
-
-        return false;
-    }
-
-
-    /**
-     * returns true if the component has a method with the specified name
-     *
-     * @param method - the method's name as a Key
-     * @return
-     */
-    public static boolean hasMethod(Component component, Collection.Key method){
-
-        return (component.get(method, null) instanceof Function);
-    }
-
-
-    public static boolean hasMethod(LuceeAppListener appListener, Collection.Key method){
-
-        return LuceeApps.hasMethod(appListener.getComponent(), method);
-    }
-
-
-    public static void log(String appListenerKey, int logLevel, String message, String appName, String logfileName){
-
-        LuceeAppListener appListener = appListeners.get(appListenerKey);
-
-        if (appListener != null){
-
-            LuceeApp luceeApp = appListener.getApp();
-            Log l = luceeApp.getConfigWeb().getLog(logfileName);
-            l.log(logLevel, appName, message);
-        }
-    }
-
-    //</editor-fold>
+		if (getDecisionUtil().isBoolean(obj)) {
+			try {
+				boolean result = getCastUtil().toBoolean(obj);
+				return (result == false);
+			}
+			catch (Exception ex) {
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * returns true if the object is a cfml boolean and is true
+	 *
+	 * @param obj
+	 * @return
+	 */
+	public static boolean isBooleanTrue(Object obj) {
+
+		if (getDecisionUtil().isBoolean(obj)) {
+			try {
+				boolean result = getCastUtil().toBoolean(obj);
+				return (result == true);
+			}
+			catch (Exception ex) {
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * returns true if the component has a method with the specified name
+	 *
+	 * @param method
+	 *            - the method's name as a Key
+	 * @return
+	 */
+	public static boolean hasMethod(Component component, Collection.Key method) {
+
+		return (component.get(method, null) instanceof Function);
+	}
+
+	public static boolean hasMethod(LuceeAppListener appListener, Collection.Key method) {
+
+		return LuceeApps.hasMethod(appListener.getComponent(), method);
+	}
+
+	public static void log(String appListenerKey, int logLevel, String message, String appName, String logfileName) {
+
+		LuceeAppListener appListener = appListeners.get(appListenerKey);
+
+		if (appListener != null) {
+
+			LuceeApp luceeApp = appListener.getApp();
+			Log l = luceeApp.getConfigWeb().getLog(logfileName);
+			l.log(logLevel, appName, message);
+		}
+	}
+
+	// </editor-fold>
 }

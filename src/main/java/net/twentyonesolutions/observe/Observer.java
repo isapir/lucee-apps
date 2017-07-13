@@ -7,18 +7,18 @@ import java.util.Date;
  */
 public interface Observer {
 
-    default void notify(Object... args){
+	default void notify(Object... args) {
 
-        StringBuilder sb = new StringBuilder(256);
-        sb.append((new Date()).toString());
-        sb.append(" ");
+		StringBuilder sb = new StringBuilder(256);
+		sb.append((new Date()).toString());
+		sb.append(" ");
 
-        for (Object arg : args){
-            sb.append(arg.toString());
-            sb.append("; ");
-        }
+		for (Object arg : args) {
+			sb.append(arg.toString());
+			sb.append("; ");
+		}
 
-        System.out.println(sb.toString());
-    }
+		System.out.println(sb.toString());
+	}
 
 }
