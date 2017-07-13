@@ -3,6 +3,7 @@ package net.twentyonesolutions.lucee.app;
 import lucee.commons.io.log.Log;
 import lucee.loader.engine.CFMLEngine;
 import lucee.loader.engine.CFMLEngineFactory;
+import lucee.runtime.CFMLFactory;
 import lucee.runtime.PageContext;
 import lucee.runtime.config.ConfigWeb;
 import lucee.runtime.exp.PageException;
@@ -40,11 +41,10 @@ public class LuceeApp {
     private ServletContext servletContext;  // WebContext, actually
     private ConfigWeb configWeb;
     private ApplicationContext applicationContext;
-    private Application applicationScope;
 
-    private File webRoot;
+    private String rootDir;
+    private File rootFile;
     private String httpHost;
-
 
     /** disable constructor */
     private LuceeApp(){}
@@ -59,48 +59,17 @@ public class LuceeApp {
         result.configWeb = pc.getConfig();
         result.applicationContext = pc.getApplicationContext();
 
-        result.webRoot = new File(result.configWeb.getRootDirectory().getAbsolutePath());
+        result.rootDir = result.servletContext.getRealPath("/");
+        result.rootFile = new File(result.rootDir);
 
         try {
 
-            result.applicationScope = pc.applicationScope();
             result.httpHost = (String)pc.cgiScope().get(LuceeApps.toKey("HTTP_HOST"));
         }
         catch (PageException ex){}
 
         return result;
     }
-
-
-    /*
-    public static Component loadComponent(String path, ApplicationContext applicationContext, String cfid) throws PageException {
-
-        PageContext pc = createPageContext(applicationContext, cfid);
-        Component result = pc.loadComponent(path);
-        return result;
-    }
-
-
-    public Component loadComponent(String path, String cfid) {
-
-        try {
-
-            return loadComponent(path, this.applicationContext, cfid);
-        }
-        catch (PageException ex){
-            // TODO: log
-            ex.printStackTrace();
-            return null;
-        }
-    }
-
-
-    public Component loadComponent(String path) {
-
-        return loadComponent(path, null);
-    }
-    //*/
-
 
 
     public static PageContext createPageContext(LuceeApp luceeApp, String cfid){
@@ -112,7 +81,7 @@ public class LuceeApp {
         try {
 
             PageContext pc = engine.createPageContext(
-                     luceeApp.webRoot                   // webroot  (new File("E:/Workspace/git/LuceeDebug/webapps/default/"))
+                     luceeApp.rootFile                   // webroot  (new File("E:/Workspace/git/LuceeDebug/webapps/default/"))
                     ,luceeApp.httpHost                   // HOST, e.g. "localhost.com"
                     ,"/"                   // SCRIPT_NAME, e.g. "/websockets/test.cfm"
                     ,""                   // QUERY_STRING
@@ -147,12 +116,39 @@ public class LuceeApp {
 
     public PageContext createPageContext(){
 
-//        return createPageContext(this.applicationContext, null);
         return createPageContext(this, null);
     }
 
 
     /*
+    public static Component loadComponent(String path, ApplicationContext applicationContext, String cfid) throws PageException {
+
+        PageContext pc = createPageContext(applicationContext, cfid);
+        Component result = pc.loadComponent(path);
+        return result;
+    }
+
+
+    public Component loadComponent(String path, String cfid) {
+
+        try {
+
+            return loadComponent(path, this.applicationContext, cfid);
+        }
+        catch (PageException ex){
+            // TODO: log
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public Component loadComponent(String path) {
+
+        return loadComponent(path, null);
+    }
+
+
     public static Object invoke(PageContext pc, Component component, Collection.Key methodName, Object... args){
 
         if (!LuceeApps.hasMethod(component, methodName))
@@ -181,12 +177,9 @@ public class LuceeApp {
     }
 
 
-    public Application getApplicationScope(){
-        return applicationScope;
+    public ServletConfig getServletConfig() {
+        return servletConfig;
     }
-
-
-    public ServletConfig getServletConfig() { return servletConfig; }
 
 
     public ServletContext getServletContext(){
@@ -194,12 +187,19 @@ public class LuceeApp {
     }
 
 
-    public ConfigWeb getConfigWeb() { return configWeb; }
+    public ConfigWeb getConfigWeb() {
+        return configWeb;
+    }
+
+
+    public String getKey(){
+        return rootDir + "@" + getName();
+    }
 
 
     @Override
     public String toString(){
-        return getName();
+        return getKey();
     }
 
 
@@ -210,51 +210,18 @@ public class LuceeApp {
     }
 
 
-    public Session getSessionScope(String cfid){
+    public Application getApplicationScope(){
 
-        if (this.applicationContext == null)
-            return null;
-
-        Session result = null;
-        PageContext pc = createPageContext(this, cfid);
-
-        if (pc != null){
-
-            try {
-                result = pc.sessionScope();
-            }
-            catch (PageException e) {
-                e.printStackTrace();
-            }
-            finally {
-                this.releasePageContext(pc);
-            }
-        }
-
+        Application result = ScopeResolver.getApplicationScope(this.servletConfig, this.applicationContext.getName());
         return result;
     }
 
 
-//    public Session getSessionScopeByReflection(String id){
-//
-//        if (this.applicationContext == null)
-//            return null;
-//
-//        Session result = null;
-//        PageContext pc = createPageContext(this, id);
-//
-//        if (pc != null){
-//
-//            try {
-//                result = Reflection.getSessionScope(pc, id);
-//            }
-//            finally {
-//                this.releasePageContext(pc);
-//            }
-//        }
-//
-//        return result;
-//    }
+    public Session getSessionScope(String cfid){
+
+        Session result = ScopeResolver.getSessionScope(this.servletConfig, this.applicationContext.getName(), cfid);
+        return result;
+    }
 
 
     public void releasePageContext(PageContext pc){

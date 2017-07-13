@@ -13,6 +13,7 @@ import lucee.runtime.util.Creation;
 import lucee.runtime.util.Decision;
 import lucee.runtime.util.Operation;
 
+import javax.servlet.ServletContext;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,7 +48,7 @@ public class LuceeApps {
 
     public static LuceeApp registerApp(LuceeApp app){
 
-        return registerApp(app, app.getName());
+        return registerApp(app, app.getKey());
     }
 
 
@@ -87,18 +88,6 @@ public class LuceeApps {
         LuceeApp app = LuceeApp.createFromPageContext(pc);
         return registerApp(app);
     }
-
-
-    /*
-    public static LuceeApp registerListenerFromComponent(Component component, String key) throws PageException {
-
-        LuceeApp app = LuceeApp.createFromComponent(component);
-        registerApp(app);
-
-        LuceeAppListener listener = new LuceeAppListener(component, app);
-        appListeners.put(key, listener);
-        return app;
-    } //*/
 
 
     //<editor-fold desc="Util Methods">
