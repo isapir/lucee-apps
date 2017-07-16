@@ -4,7 +4,6 @@ import lucee.commons.io.log.Log;
 import lucee.runtime.Component;
 import lucee.runtime.PageContext;
 import lucee.runtime.type.Collection;
-import lucee.runtime.type.Objects;
 import lucee.runtime.type.Struct;
 
 /**
@@ -101,7 +100,7 @@ public class LuceeAppListener {
 			return e;
 		}
 		finally {
-			app.releasePageContext(pc);
+			LuceeAppsUtil.releasePageContext(pc);
 		}
 	} // */
 
@@ -125,7 +124,7 @@ public class LuceeAppListener {
 			return e;
 		}
 		finally {
-			app.releasePageContext(pc);
+			LuceeAppsUtil.releasePageContext(pc);
 		}
 	}
 

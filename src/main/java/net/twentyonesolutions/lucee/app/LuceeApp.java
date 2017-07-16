@@ -3,7 +3,6 @@ package net.twentyonesolutions.lucee.app;
 import lucee.commons.io.log.Log;
 import lucee.loader.engine.CFMLEngine;
 import lucee.loader.engine.CFMLEngineFactory;
-import lucee.runtime.CFMLFactory;
 import lucee.runtime.PageContext;
 import lucee.runtime.config.ConfigWeb;
 import lucee.runtime.exp.PageException;
@@ -14,7 +13,6 @@ import lucee.runtime.type.scope.Session;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -72,81 +70,35 @@ public class LuceeApp {
 		return result;
 	}
 
-	public static PageContext createPageContext(LuceeApp luceeApp, String cfid) {
+
+	public PageContext createPageContext(String cfid) {
 
 		Cookie[] cookies = null;
 		if (cfid != null && !cfid.isEmpty())
 			cookies = new Cookie[] { new Cookie("cfid", cfid), new Cookie("cftoken", "0") };
 
-		try {
+		PageContext result = LuceeAppsUtil.createPageContext(this.rootDir
+				,this.httpHost
+				,"/"
+				,""
+				,cookies
+				,Collections.EMPTY_MAP
+				,Collections.EMPTY_MAP
+				,Collections.EMPTY_MAP
+				,System.out
+				,60_000
+				,true
+				,this.applicationContext
+		);
 
-			PageContext pc = engine.createPageContext(luceeApp.rootFile // webroot (new
-																		// File("E:/Workspace/git/LuceeDebug/webapps/default/"))
-					, luceeApp.httpHost // HOST, e.g. "localhost.com"
-					, "/" // SCRIPT_NAME, e.g. "/websockets/test.cfm"
-					, "" // QUERY_STRING
-					, cookies // Cookies, cfid and cftoken are required for to retrieve Session
-					, Collections.EMPTY_MAP // headers, can also be null
-					, Collections.EMPTY_MAP // parameters
-					, Collections.EMPTY_MAP // attributes
-					, System.out // response stream where the output is written to
-					, 60_000 // timeout for the simulated request in milli seconds
-					, true // register the pc to the thread
-			);
-
-			if (luceeApp.applicationContext != null)
-				pc.setApplicationContext(luceeApp.applicationContext);
-
-			return pc;
-		}
-		catch (ServletException ex) {
-			// TODO: log
-			ex.printStackTrace();
-			return null;
-		}
-	}
-
-	public PageContext createPageContext(String cfid) {
-
-		// return createPageContext(this.applicationContext, cfid);
-		return createPageContext(this, cfid);
+		return result;
 	}
 
 	public PageContext createPageContext() {
 
-		return createPageContext(this, null);
+		return createPageContext(null);
 	}
 
-	/*
-	 * public static Component loadComponent(String path, ApplicationContext applicationContext, String cfid) throws
-	 * PageException {
-	 *
-	 * PageContext pc = createPageContext(applicationContext, cfid); Component result = pc.loadComponent(path); return
-	 * result; }
-	 *
-	 *
-	 * public Component loadComponent(String path, String cfid) {
-	 *
-	 * try {
-	 *
-	 * return loadComponent(path, this.applicationContext, cfid); } catch (PageException ex){ // TODO: log
-	 * ex.printStackTrace(); return null; } }
-	 *
-	 *
-	 * public Component loadComponent(String path) {
-	 *
-	 * return loadComponent(path, null); }
-	 *
-	 *
-	 * public static Object invoke(PageContext pc, Component component, Collection.Key methodName, Object... args){
-	 *
-	 * if (!LuceeApps.hasMethod(component, methodName)) return null;
-	 *
-	 * try {
-	 *
-	 * Object result = component.call(pc, methodName, args); return result; } catch (Exception e){ // TODO: log
-	 * e.printStackTrace(); return e; } } //
-	 */
 
 	public String getName() {
 		return applicationContext.getName();
@@ -195,10 +147,6 @@ public class LuceeApp {
 		return result;
 	}
 
-	public void releasePageContext(PageContext pc) {
-
-		engine.releasePageContext(pc, true);
-	}
 
 	public List<String> getLoggerNames() {
 
@@ -220,28 +168,6 @@ public class LuceeApp {
 		}
 
 		return null;
-	}
-
-	/**
-	 *
-	 * @param obj
-	 * @param methodName
-	 * @param argTypes
-	 * @param args
-	 * @return
-	 * @throws ClassNotFoundException
-	 * @throws NoSuchMethodException
-	 * @throws InvocationTargetException
-	 * @throws IllegalAccessException
-	 */
-	public Object invokeByReflection(Object obj, String methodName, Class[] argTypes, Object[] args)
-			throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-		Class c = obj.getClass();
-		Method method = c.getDeclaredMethod(methodName, argTypes);
-
-		Object result = method.invoke(obj, args);
-		return result;
 	}
 
 }

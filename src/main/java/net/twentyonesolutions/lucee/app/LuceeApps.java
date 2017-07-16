@@ -82,7 +82,27 @@ public class LuceeApps {
 		return registerApp(app);
 	}
 
+
+	public static boolean hasMethod(LuceeAppListener appListener, Collection.Key method) {
+
+		return LuceeApps.hasMethod(appListener.getComponent(), method);
+	}
+
+	public static void log(String appListenerKey, int logLevel, String message, String appName, String logfileName) {
+
+		LuceeAppListener appListener = appListeners.get(appListenerKey);
+
+		if (appListener != null) {
+
+			LuceeApp luceeApp = appListener.getApp();
+			Log l = luceeApp.getConfigWeb().getLog(logfileName);
+			l.log(logLevel, appName, message);
+		}
+	}
+
+
 	// <editor-fold desc="Util Methods">
+	// TODO: moved to LuceeAppsUtil -- remove from here
 
 	public static Collection.Key toKey(String key) {
 
@@ -164,23 +184,6 @@ public class LuceeApps {
 	public static boolean hasMethod(Component component, Collection.Key method) {
 
 		return (component.get(method, null) instanceof Function);
-	}
-
-	public static boolean hasMethod(LuceeAppListener appListener, Collection.Key method) {
-
-		return LuceeApps.hasMethod(appListener.getComponent(), method);
-	}
-
-	public static void log(String appListenerKey, int logLevel, String message, String appName, String logfileName) {
-
-		LuceeAppListener appListener = appListeners.get(appListenerKey);
-
-		if (appListener != null) {
-
-			LuceeApp luceeApp = appListener.getApp();
-			Log l = luceeApp.getConfigWeb().getLog(logfileName);
-			l.log(logLevel, appName, message);
-		}
 	}
 
 	// </editor-fold>
